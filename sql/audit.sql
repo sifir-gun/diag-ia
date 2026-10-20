@@ -14,6 +14,7 @@ WHERE d.diagnostic_id = diag_id
 ORDER BY log_time;
 
 -- 2. Volume, coût et latence par jour (source du tableau de bord Looker Studio).
+-- latency_ms est la latence vue par le visiteur : depuis le 2026-10-21, elle inclut les nouveaux essais et leurs attentes.
 SELECT
   DATE(created_at) AS jour,
   COUNT(*) AS diagnostics,
@@ -25,9 +26,9 @@ FROM `wengraf-diag-ia.diagnostic.diagnostics`
 GROUP BY jour
 ORDER BY jour DESC;
 
--- 3. Incidents : appels au modèle ou enregistrements en échec.
+-- 3. Incidents : nouveaux essais, conseils rejetés ou indisponibles, enregistrements en échec.
 SELECT timestamp, severity, jsonPayload.event AS event, jsonPayload.diagnostic_id AS diagnostic_id
 FROM `wengraf-diag-ia.audit_logs.run_googleapis_com_stdout`
-WHERE jsonPayload.event IN ('llm_call_failed', 'llm_output_rejected', 'storage_failed')
+WHERE jsonPayload.event IN ('advice_retry', 'advice_rejected', 'advice_failed', 'storage_failed')
 ORDER BY timestamp DESC
 LIMIT 100;

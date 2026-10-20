@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.adapters.outbound.llm.gemini import GeminiAdviceGenerator, _AdviceSchema, _to_domain
-from app.application.ports import AdviceRequest, Prompt
+from app.application.ports import AdviceRequest, AdviceTemporarilyUnavailable, Prompt
 from app.domain.advice import InvalidAdvice, normalize_advice
 from app.domain.scoring import compute_score
 from tests.fakes import VALID_ANSWERS
@@ -113,3 +113,48 @@ def test_thinking_level_is_sent_to_the_model(level):
 def test_model_label_carries_the_thinking_level():
     generator, _ = stub_generator("minimal")
     assert call(generator).model == "gemini-3.5-flash/minimal"
+
+
+class FailingModels:
+    def __init__(self, error: Exception):
+        self._error = error
+
+    def generate_content(self, **kwargs):
+        raise self._error
+
+
+def failing_generator(error):
+    return GeminiAdviceGenerator("projet", "global", "gemini-3.5-flash", "minimal",
+                                 client=SimpleNamespace(models=FailingModels(error)))
+
+
+def api_error(code):
+    from google.genai import errors
+    return errors.APIError(code, {"error": {"code": code, "message": "indisponible", "status": "X"}})
+
+
+def timeout_error():
+    import httpx
+    return httpx.ReadTimeout("délai dépassé")
+
+
+@pytest.mark.parametrize("make_error, reason", [
+    (lambda: api_error(503), "503"), (lambda: api_error(429), "429"), (timeout_error, "timeout"),
+])
+def test_overload_quota_and_timeout_are_temporary(make_error, reason):
+    with pytest.raises(AdviceTemporarilyUnavailable) as caught:
+        call(failing_generator(make_error()))
+    assert caught.value.reason == reason
+
+
+@pytest.mark.parametrize("code", [400, 500])
+def test_other_api_errors_are_not_temporary(code):
+    from google.genai import errors
+    with pytest.raises(errors.APIError):
+        call(failing_generator(api_error(code)))
+
+
+def test_each_call_has_a_20_second_timeout():
+    generator, models = stub_generator()
+    call(generator)
+    assert models.calls[0]["config"].http_options.timeout == 20_000

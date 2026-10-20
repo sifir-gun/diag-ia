@@ -41,6 +41,14 @@ class AdviceGenerationError(RuntimeError):
     """Le générateur a répondu, mais pas dans le format attendu."""
 
 
+class AdviceTemporarilyUnavailable(RuntimeError):
+    """Générateur saturé ou trop lent (503, 429, délai dépassé) : un nouvel essai peut réussir."""
+
+    def __init__(self, reason: str):
+        super().__init__(reason)
+        self.reason = reason
+
+
 class AdviceGenerator(Protocol):
     def generate(self, prompt: Prompt, request: AdviceRequest) -> GeneratedAdvice: ...
 

@@ -14,7 +14,9 @@ from typing import Literal
 from pydantic import BaseModel, ValidationError, field_validator
 
 from app.adapters.outbound.llm.rendering import build_user_content
-from app.application.ports import AdviceGenerationError, AdviceRequest, GeneratedAdvice, Prompt
+from app.application.ports import (
+    AdviceGenerationError, AdviceRequest, AdviceTemporarilyUnavailable, GeneratedAdvice, Prompt,
+)
 from app.domain.advice import HTML_ENTITY
 from app.domain.model import Advice, Recommendation
 
@@ -74,12 +76,20 @@ class _AdviceSchema(BaseModel):
     _decode = field_validator("summary", mode="before")(_decode_entities)
 
 
+# Délai maximal d'un essai : détail de transport. Le budget total est une règle du cas d'usage.
+TIMEOUT_S = 20
+TEMPORARY_CODES = (429, 503)
+
+
 class GeminiAdviceGenerator:
     def __init__(self, project: str, location: str, model: str, thinking_level: str,
                  client: object | None = None):
-        from google.genai import types
+        import httpx
+        from google.genai import errors, types
 
         self._types = types
+        self._api_error = errors.APIError
+        self._timeout_error = httpx.TimeoutException
         if client is None:
             from google import genai
             client = genai.Client(enterprise=True, project=project, location=location)
@@ -88,16 +98,24 @@ class GeminiAdviceGenerator:
         self._thinking_level = thinking_level
 
     def generate(self, prompt: Prompt, request: AdviceRequest) -> GeneratedAdvice:
-        response = self._client.models.generate_content(
-            model=self._model,
-            contents=build_user_content(request),
-            config=self._types.GenerateContentConfig(
-                system_instruction=prompt.text,
-                response_mime_type="application/json",
-                response_schema=_AdviceSchema,
-                thinking_config=self._types.ThinkingConfig(thinking_level=self._thinking_level),
-            ),
-        )
+        try:
+            response = self._client.models.generate_content(
+                model=self._model,
+                contents=build_user_content(request),
+                config=self._types.GenerateContentConfig(
+                    system_instruction=prompt.text,
+                    response_mime_type="application/json",
+                    response_schema=_AdviceSchema,
+                    thinking_config=self._types.ThinkingConfig(thinking_level=self._thinking_level),
+                    http_options=self._types.HttpOptions(timeout=TIMEOUT_S * 1000),  # millisecondes
+                ),
+            )
+        except self._timeout_error as exc:
+            raise AdviceTemporarilyUnavailable("timeout") from exc
+        except self._api_error as exc:
+            if exc.code in TEMPORARY_CODES:
+                raise AdviceTemporarilyUnavailable(str(exc.code)) from exc
+            raise
         parsed = getattr(response, "parsed", None)
         if not isinstance(parsed, _AdviceSchema):
             try:

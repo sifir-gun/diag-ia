@@ -6,14 +6,15 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Callable, Mapping
 
 from app.application.errors import AdviceUnavailable, DiagnosticNotRecorded
 from app.application.ports import (
-    AdviceGenerationError, AdviceGenerator, AdviceRequest, Clock,
-    DiagnosticRepository, EventPublisher, IdGenerator, PromptProvider,
+    AdviceGenerationError, AdviceGenerator, AdviceRequest, AdviceTemporarilyUnavailable, Clock,
+    DiagnosticRepository, EventPublisher, GeneratedAdvice, IdGenerator, Prompt, PromptProvider,
 )
 from app.application.pricing import Pricing
+from app.application.retry import RetryPolicy
 from app.domain.advice import InvalidAdvice, normalize_advice
 from app.domain.fingerprint import compute_fingerprints
 from app.domain.model import Diagnostic, Usage
@@ -31,7 +32,9 @@ class RunDiagnosticCommand:
 class RunDiagnostic:
     def __init__(self, *, advisor: AdviceGenerator, repository: DiagnosticRepository,
                  prompts: PromptProvider, events: EventPublisher, clock: Clock,
-                 ids: IdGenerator, pricing: Pricing, prompt_version: str):
+                 ids: IdGenerator, pricing: Pricing, prompt_version: str, retry: RetryPolicy,
+                 sleep: Callable[[float], None] = time.sleep,
+                 monotonic: Callable[[], float] = time.monotonic):
         self._advisor = advisor
         self._repository = repository
         self._prompts = prompts
@@ -40,6 +43,9 @@ class RunDiagnostic:
         self._ids = ids
         self._pricing = pricing
         self._prompt_version = prompt_version
+        self._retry = retry
+        self._sleep = sleep
+        self._monotonic = monotonic
 
     def execute(self, command: RunDiagnosticCommand) -> Diagnostic:
         # Lève InvalidSubmission avant tout appel coûteux.
@@ -52,7 +58,8 @@ class RunDiagnostic:
 
         started = time.perf_counter()
         try:
-            generated = self._advisor.generate(prompt, AdviceRequest(submission.answers, score))
+            generated, attempts = self._generate(diagnostic_id, prompt,
+                                                 AdviceRequest(submission.answers, score))
             advice = normalize_advice(generated.advice)
         except (AdviceGenerationError, InvalidAdvice) as exc:
             self._events.publish("advice_rejected", "WARNING",
@@ -100,6 +107,23 @@ class RunDiagnostic:
             prompt_version=prompt.version, input_tokens=diagnostic.usage.input_tokens,
             output_tokens=diagnostic.usage.output_tokens, latency_ms=latency_ms,
             cost_usd=diagnostic.usage.cost_usd,
-            record_sha256=diagnostic.fingerprints.record_sha256,
+            record_sha256=diagnostic.fingerprints.record_sha256, attempts=attempts,
         )
         return diagnostic
+
+    def _generate(self, diagnostic_id: str, prompt: Prompt,
+                  request: AdviceRequest) -> tuple[GeneratedAdvice, int]:
+        """Redemande le conseil après une erreur passagère, dans le budget de la politique."""
+        started = self._monotonic()
+        attempt = 1
+        while True:
+            try:
+                return self._advisor.generate(prompt, request), attempt
+            except AdviceTemporarilyUnavailable as exc:
+                delay = self._retry.next_delay(attempt, self._monotonic() - started)
+                if delay is None:
+                    raise
+                attempt += 1
+                self._events.publish("advice_retry", "WARNING", diagnostic_id=diagnostic_id,
+                                     attempt=attempt, reason=exc.reason, delay_s=delay)
+                self._sleep(delay)

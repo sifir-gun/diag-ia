@@ -31,8 +31,9 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Application (`app/application/`)
 
-- `app/application/ports.py` : les six ports (AdviceGenerator, DiagnosticRepository, PromptProvider, EventPublisher, Clock, IdGenerator).
-- `app/application/run_diagnostic.py` : cas d’usage principal, produire un diagnostic tracé.
+- `app/application/ports.py` : les six ports (AdviceGenerator, DiagnosticRepository, PromptProvider, EventPublisher, Clock, IdGenerator) et leurs erreurs (`AdviceGenerationError`, `AdviceTemporarilyUnavailable`).
+- `app/application/run_diagnostic.py` : cas d’usage principal, produire un diagnostic tracé, avec nouvel essai sur erreur passagère du générateur (événement `advice_retry`).
+- `app/application/retry.py` : règle de nouvel essai : 3 essais au plus, attente de 1 s puis 2 s, budget de 60 s pour le visiteur.
 - `app/application/verify_diagnostic.py` : cas d’usage d’audit, vérifier un diagnostic stocké.
 - `app/application/pricing.py` : estimation du coût à partir des tokens.
 - `app/application/errors.py` : erreurs d’application (conseil indisponible, enregistrement impossible).
@@ -47,7 +48,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Adaptateurs de sortie (`app/adapters/outbound/`)
 
-- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption, niveau de réflexion inscrit dans le champ `model` (`gemini-3.5-flash/minimal`).
+- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption, niveau de réflexion inscrit dans le champ `model` (`gemini-3.5-flash/minimal`), délai de 20 s par appel, 503, 429 et délai dépassé traduits en `AdviceTemporarilyUnavailable`.
 - `app/adapters/outbound/llm/fake.py` : faux modèle pour le local et les tests.
 - `app/adapters/outbound/llm/rendering.py` : mise en forme des réponses envoyées au modèle.
 - `app/adapters/outbound/persistence/bigquery.py` : stockage BigQuery.

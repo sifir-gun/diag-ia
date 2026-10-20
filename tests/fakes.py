@@ -7,8 +7,9 @@ from pathlib import Path
 from app.adapters.outbound.llm.fake import FakeAdviceGenerator
 from app.adapters.outbound.persistence.memory import InMemoryDiagnosticRepository
 from app.adapters.outbound.prompts import FilePromptProvider
-from app.application.ports import AdviceGenerationError
+from app.application.ports import AdviceGenerationError, AdviceTemporarilyUnavailable
 from app.application.pricing import Pricing
+from app.application.retry import RetryPolicy
 from app.application.run_diagnostic import RunDiagnostic
 
 PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
@@ -80,13 +81,45 @@ class CountingAdvisor(FakeAdviceGenerator):
         return super().generate(prompt, request)
 
 
-def make_use_case(*, advisor=None, repository=None, events=None):
+class FakeTimer:
+    """Horloge monotone et attente simulées : les tests de nouvel essai n'attendent pas."""
+
+    def __init__(self) -> None:
+        self.now = 0.0
+        self.sleeps: list[float] = []
+
+    def monotonic(self) -> float:
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.now += seconds
+
+
+class FlakyAdvisor(CountingAdvisor):
+    """Échoue `failures` fois en erreur passagère, chaque essai durant `duration` s, puis répond."""
+
+    def __init__(self, failures: int, timer: FakeTimer, duration: float = 0.5, reason: str = "503"):
+        super().__init__()
+        self.failures, self.timer, self.duration, self.reason = failures, timer, duration, reason
+
+    def generate(self, prompt, request):
+        if self.calls < self.failures:
+            self.calls += 1
+            self.timer.now += self.duration
+            raise AdviceTemporarilyUnavailable(self.reason)
+        return super().generate(prompt, request)
+
+
+def make_use_case(*, advisor=None, repository=None, events=None, timer=None):
     advisor = advisor or CountingAdvisor()
     repository = repository if repository is not None else InMemoryDiagnosticRepository()
     events = events or RecordingEvents()
+    timer = timer or FakeTimer()
     use_case = RunDiagnostic(
         advisor=advisor, repository=repository, prompts=FilePromptProvider(PROMPTS_DIR),
         events=events, clock=FixedClock(), ids=SequentialIds(),
         pricing=Pricing(1.50, 9.00), prompt_version="v1",
+        retry=RetryPolicy(attempt_timeout_s=20.0), sleep=timer.sleep, monotonic=timer.monotonic,
     )
     return use_case, advisor, repository, events

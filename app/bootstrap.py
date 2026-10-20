@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.adapters.outbound.llm.fake import FakeAdviceGenerator
-from app.adapters.outbound.llm.gemini import GeminiAdviceGenerator
+from app.adapters.outbound.llm.gemini import TIMEOUT_S as GEMINI_TIMEOUT_S, GeminiAdviceGenerator
 from app.adapters.outbound.observability import LoggingEventPublisher, configure_json_logging
 from app.adapters.outbound.persistence.bigquery import BigQueryDiagnosticRepository
 from app.adapters.outbound.persistence.memory import InMemoryDiagnosticRepository
@@ -17,6 +17,7 @@ from app.adapters.outbound.prompts import FilePromptProvider
 from app.adapters.outbound.system import UtcClock, UuidIdGenerator
 from app.application.ports import AdviceGenerator, DiagnosticRepository
 from app.application.pricing import Pricing
+from app.application.retry import RetryPolicy
 from app.application.run_diagnostic import RunDiagnostic
 from app.application.verify_diagnostic import VerifyDiagnostic
 from app.config import Settings
@@ -53,5 +54,6 @@ def build_container(settings: Settings) -> Container:
         clock=UtcClock(), ids=UuidIdGenerator(),
         pricing=Pricing(settings.price_input_usd_per_mtok, settings.price_output_usd_per_mtok),
         prompt_version=settings.prompt_version,
+        retry=RetryPolicy(attempt_timeout_s=GEMINI_TIMEOUT_S),
     )
     return Container(run_diagnostic=run, verify_diagnostic=VerifyDiagnostic(repository))
