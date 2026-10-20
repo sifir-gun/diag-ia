@@ -46,8 +46,12 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [ ] Captures du formulaire, d’un résultat et du tableau de bord dans le README
 - [ ] Mettre à jour le CV et les profils
 - [ ] Préparer les 3 réponses d’entretien : services et pourquoi, droits et secrets, coût
+- [ ] Raconter dans le README la mesure avant/après du niveau de réflexion : en production, 74 s ramenées à 5,3 s et 0,025 $ ramenés à 0,0056 $ par diagnostic, avec la méthode (3 profils débutant, en démarrage et avancé, 3 tirages par niveau, contrôle automatique de fidélité, relecture des écarts à la main)
 
 ## Bonus
 - [ ] Limitation par adresse IP sur le formulaire
 - [ ] Chaîne de hachage entre diagnostics
 - [ ] Infrastructure en Terraform
+- [ ] Erreurs 400 et 500 de Gemini : l’adaptateur laisse sortir `errors.APIError` du SDK, contrairement à la règle « aucun type d’un SDK ne sort de l’adaptateur ». Les traduire en une erreur de port dédiée, publiée en `advice_failed`
+- [ ] Délai global par appel Gemini : `HttpOptions(timeout=20000)` devient un délai httpx par phase (connexion, envoi, lecture), pas un plafond de l’appel entier. Le budget de 60 s du nouvel essai reste donc un budget, pas une garantie. Une garantie stricte demande un délai global par appel ; abaisser le budget à 55 s déplacerait le chiffre sans rien garantir
+- [ ] Coût des essais ratés : `cost_usd` n’estime que l’essai réussi, alors qu’un essai coupé par le délai a pu être facturé par Gemini

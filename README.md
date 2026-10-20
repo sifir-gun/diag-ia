@@ -218,6 +218,8 @@ GCP_PROJECT=wengraf-diag-ia LLM_BACKEND=fake python -m app.verify <référence>
 
 Le coût de chaque diagnostic est estimé à partir des tokens consommés et du prix catalogue configuré (`PRICE_INPUT_USD_PER_MTOK`, `PRICE_OUTPUT_USD_PER_MTOK`), puis stocké dans `cost_usd`. Les valeurs par défaut correspondent à Gemini 3.5 Flash : à vérifier sur la page de tarifs et à comparer avec la facturation réelle. Cloud Run, Cloud Build et BigQuery restent dans leurs paliers gratuits à ce volume.
 
+Quand le conseil a demandé plusieurs essais (erreur 503, 429 ou délai dépassé), `cost_usd` estime le seul essai réussi : un essai interrompu par le délai a pu être facturé par Gemini sans être compté.
+
 ## Limites connues
 
 - **Résidence des données.** BigQuery stocke tout dans l’Union européenne, mais l’appel au modèle passe par l’emplacement `global`, où sont proposés les modèles Gemini récents. Pour un traitement strictement européen, il faut un modèle disponible dans une région de l’UE.
