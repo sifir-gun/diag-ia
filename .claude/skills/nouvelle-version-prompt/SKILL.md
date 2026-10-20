@@ -12,3 +12,4 @@ description: Procédure pour modifier la consigne envoyée au modèle sans casse
 5. **Tester en local avec le vrai modèle** sur 3 jeux de réponses contrastés (débutant, en démarrage, avancé) et comparer les recommandations avec la version précédente.
 6. **Vérifier** : `pytest -q`, puis relecture par le sous-agent `architecture-reviewer`.
 7. **Tracer la décision** : une ligne dans `PLAN.md` qui dit ce qui change et pourquoi.
+8. **Figer la version** : ajouter son sha256 dans `PUBLISHED` de `tests/adapters/test_prompts.py` (le même que la colonne `prompt_sha256` des diagnostics réels de l’étape 5), et une règle `Edit(prompts/diagnostic_vN.md)` dans `permissions.deny` de `.claude/settings.json`.
