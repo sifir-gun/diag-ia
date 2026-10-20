@@ -184,7 +184,13 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 `run.admin` plutôt que `run.developer`, parce que `--allow-unauthenticated` modifie la politique IAM du service. Le droit d’écriture d’images est posé sur le dépôt `diag-repo` seulement, pas sur le projet. `iam.serviceAccountUser` est posé sur `diag-app` seulement : le build peut déployer le service sous cette identité, et sous aucune autre. Juste après la création du compte, un binding peut échouer avec « does not exist » le temps que le compte se propage : il suffit de relancer la commande.
 
-Dans la console, Cloud Build > Déclencheurs : connecte le repo GitHub, déclenche sur push vers `main`, fichier `cloudbuild.yaml`, compte de service `diag-build`. Renseigne `_CONTACT_EMAIL` dans les variables de substitution pour afficher le bouton de contact.
+Dans la console, Cloud Build > Déclencheurs, région `europe-west1` : crée une connexion GitHub de 2e génération limitée au dépôt `diag-ia`, puis un déclencheur `deploy-main` sur push vers `^main$`, fichier `cloudbuild.yaml`, compte de service `diag-build`. Renseigne `_CONTACT_EMAIL` dans les variables de substitution pour afficher le bouton de contact. Pour vérifier la configuration :
+
+```bash
+gcloud builds triggers describe deploy-main --region=europe-west1
+```
+
+**Secret Manager** est activé pour la connexion GitHub : Cloud Build y stocke le jeton OAuth de la connexion, dans un secret régional en `europe-west1`. Il ne sert pas à l’application, qui n’a aucun secret : elle s’authentifie avec son compte de service, et `diag-app` n’a aucun rôle Secret Manager.
 
 ## Audit et observabilité
 

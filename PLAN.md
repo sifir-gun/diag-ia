@@ -28,7 +28,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 
 ## Phase 4. Déploiement
 - [x] Créer le compte de service `diag-build` et ses rôles (2026-10-20, run.admin et logging.logWriter sur le projet, artifactregistry.writer sur le dépôt `diag-repo` seulement, iam.serviceAccountUser sur `diag-app` seulement)
-- [ ] (Guney, console) Connecter GitHub et créer le déclencheur Cloud Build sur `main`
+- [x] (Guney, console) Connecter GitHub et créer le déclencheur Cloud Build sur `main` (2026-10-20, déclencheur `deploy-main` en europe-west1, connexion 2e génération limitée au dépôt, compte `diag-build`, branche `^main$`, `cloudbuild.yaml` vérifiés avec `gcloud builds triggers describe` ; Secret Manager activé pour le jeton de la connexion)
 - [ ] Premier déploiement réussi, URL Cloud Run notée ici :
 
 ## Phase 5. Observabilité
