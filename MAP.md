@@ -14,7 +14,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 | Changer le design | `app/adapters/inbound/web/static/style.css` et les gabarits de `app/adapters/inbound/web/templates/` | `test_form_lists_all_questions` |
 | Changer un message d’erreur affiché | `app/domain/submission.py`, `app/domain/questions.py` ou `app/adapters/inbound/web/html.py` | `test_form_errors_keep_previous_answers` |
 | Ajouter un événement de log | `app/application/run_diagnostic.py`, puis la requête 3 de `sql/audit.sql` | `test_model_failure_records_nothing` |
-| Ajouter une variable de configuration | `app/config.py`, `.env.example`, `cloudbuild.yaml`, et `app/bootstrap.py` si elle choisit un adaptateur | aucun : vérifier en local |
+| Ajouter une variable de configuration | `app/config.py`, `.env.example`, `cloudbuild.yaml`, et `app/bootstrap.py` si elle choisit un adaptateur | `tests/test_config.py` si elle doit être validée |
 | Brancher un service externe | Skill `nouveau-port` | `test_dependency_rule` |
 | Changer le déploiement | `cloudbuild.yaml`, `Dockerfile` | le build Cloud Build |
 
@@ -60,7 +60,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Composition et points d’entrée
 
-- `app/config.py` : configuration lue dans les variables d’environnement.
+- `app/config.py` : configuration lue dans les variables d’environnement et validée : backend inconnu, projet vide avec un adaptateur réel ou prix invalide lèvent `ConfigurationError`.
 - `app/bootstrap.py` : racine de composition, seul endroit qui choisit les adaptateurs.
 - `app/main.py` : point d’entrée web pour uvicorn.
 - `app/verify.py` : point d’entrée de vérification.
@@ -73,4 +73,5 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 - `sql/audit.sql` : requêtes d’audit et de suivi des coûts.
 - `tests/fakes.py` : doublures des ports et réponses de référence.
 - `tests/test_architecture.py` : règle de dépendance de l’hexagone.
+- `tests/test_config.py` : refus d’une configuration invalide au démarrage.
 - `tests/test_map.py` : vérifie que cette carte est à jour.

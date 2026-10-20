@@ -192,6 +192,8 @@ gcloud builds triggers describe deploy-main --region=europe-west1
 
 **Secret Manager** est activé pour la connexion GitHub : Cloud Build y stocke le jeton OAuth de la connexion, dans un secret régional en `europe-west1`. Il ne sert pas à l’application, qui n’a aucun secret : elle s’authentifie avec son compte de service, et `diag-app` n’a aucun rôle Secret Manager.
 
+Une configuration invalide (backend inconnu, `GCP_PROJECT` vide avec les adaptateurs réels, prix `PRICE_*` invalide) empêche la révision Cloud Run de démarrer, donc le déploiement échoue et l’ancienne révision continue de servir.
+
 ## Audit et observabilité
 
 Sink des logs vers BigQuery :

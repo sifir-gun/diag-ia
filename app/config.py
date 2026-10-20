@@ -1,19 +1,39 @@
 """Configuration lue dans les variables d'environnement."""
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass
 from functools import lru_cache
 
 
-def _float(name: str, default: float) -> float:
+class ConfigurationError(ValueError):
+    """Configuration incohérente : l'application refuse de démarrer."""
+
+
+LLM_BACKENDS = ("vertex", "fake")
+STORE_BACKENDS = ("bigquery", "memory")
+
+
+def _price(name: str, default: float) -> float:
+    """Absente ou vide : valeur par défaut. Sinon un nombre fini, positif ou nul."""
     raw = os.getenv(name)
     if raw in (None, ""):
         return default
     try:
-        return float(raw)
+        value = float(raw)
     except ValueError:
-        return default
+        raise ConfigurationError(f"{name}={raw!r} : un nombre est attendu") from None
+    if not math.isfinite(value) or value < 0:
+        raise ConfigurationError(f"{name}={raw!r} : un nombre fini, positif ou nul, est attendu")
+    return value
+
+
+def _backend(name: str, default: str, allowed: tuple[str, ...]) -> str:
+    value = os.getenv(name, default)
+    if value not in allowed:
+        raise ConfigurationError(f"{name}={value!r} : valeurs possibles {', '.join(allowed)}")
+    return value
 
 
 @dataclass(frozen=True)
@@ -33,16 +53,24 @@ class Settings:
 
 @lru_cache
 def get_settings() -> Settings:
+    """Lit et valide la configuration : toute incohérence empêche le démarrage."""
+    llm_backend = _backend("LLM_BACKEND", "vertex", LLM_BACKENDS)
+    store_backend = _backend("STORE_BACKEND", "bigquery", STORE_BACKENDS)
+    project = (os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT") or "").strip()
+    if not project and (llm_backend == "vertex" or store_backend == "bigquery"):
+        raise ConfigurationError(
+            f"GCP_PROJECT (ou GOOGLE_CLOUD_PROJECT) vide alors que LLM_BACKEND={llm_backend} et STORE_BACKEND={store_backend} : "
+            "les adaptateurs réels ont besoin du projet")
     return Settings(
-        project=os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT", ""),
+        project=project,
         vertex_location=os.getenv("VERTEX_LOCATION", "global"),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
         bq_dataset=os.getenv("BQ_DATASET", "diagnostic"),
         bq_table=os.getenv("BQ_TABLE", "diagnostics"),
         prompt_version=os.getenv("PROMPT_VERSION", "v2"),
-        price_input_usd_per_mtok=_float("PRICE_INPUT_USD_PER_MTOK", 1.50),
-        price_output_usd_per_mtok=_float("PRICE_OUTPUT_USD_PER_MTOK", 9.00),
-        llm_backend=os.getenv("LLM_BACKEND", "vertex"),
-        store_backend=os.getenv("STORE_BACKEND", "bigquery"),
+        price_input_usd_per_mtok=_price("PRICE_INPUT_USD_PER_MTOK", 1.50),
+        price_output_usd_per_mtok=_price("PRICE_OUTPUT_USD_PER_MTOK", 9.00),
+        llm_backend=llm_backend,
+        store_backend=store_backend,
         contact_email=os.getenv("CONTACT_EMAIL", ""),
     )

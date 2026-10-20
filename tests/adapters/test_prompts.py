@@ -15,6 +15,9 @@ PUBLISHED = {
 @pytest.fixture
 def default_settings(monkeypatch):
     monkeypatch.delenv("PROMPT_VERSION", raising=False)
+    # Adaptateurs locaux : sans eux, la configuration exige un projet GCP.
+    monkeypatch.setenv("LLM_BACKEND", "fake")
+    monkeypatch.setenv("STORE_BACKEND", "memory")
     get_settings.cache_clear()
     yield get_settings()
     get_settings.cache_clear()
