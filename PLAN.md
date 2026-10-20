@@ -24,6 +24,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent (2026-10-20, répond, google-genai 2.31.0)
 - [x] Faire un diagnostic réel avec `LLM_BACKEND=vertex` et `STORE_BACKEND=bigquery` (2026-10-20, référence 5d75355694604c0c9ec8d73eb0c9614d, 954 tokens en entrée, 2 563 en sortie, 20 s, 0,0245 $)
 - [x] Vérifier la ligne avec `python -m app.verify` (2026-10-20, intègre, code de sortie 0)
+- [x] Consigne v2 : texte brut sans entités HTML et apostrophe ’, parce que Gemini a renvoyé `&eacute;` en v1, que la page aurait affiché tel quel. L’adaptateur Gemini décode les entités, `normalize_advice` rejette celles qui subsistent et convertit l’apostrophe droite (2026-10-20, 3 diagnostics réels débutant 5, en démarrage 48, avancé 90, textes propres, tous intègres)
 
 ## Phase 4. Déploiement
 - [ ] Créer le compte de service `diag-build` et ses rôles

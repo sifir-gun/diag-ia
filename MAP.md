@@ -68,6 +68,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 ### Hors de `app/`
 
 - `prompts/diagnostic_v1.md` : consigne du modèle, version 1, figée.
+- `prompts/diagnostic_v2.md` : consigne du modèle, version 2, figée, version par défaut (texte brut sans entités HTML, apostrophe ’).
 - `sql/schema_diagnostics.json` : schéma de la table BigQuery.
 - `sql/audit.sql` : requêtes d’audit et de suivi des coûts.
 - `tests/fakes.py` : doublures des ports et réponses de référence.

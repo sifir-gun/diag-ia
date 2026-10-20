@@ -39,7 +39,7 @@ def get_settings() -> Settings:
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
         bq_dataset=os.getenv("BQ_DATASET", "diagnostic"),
         bq_table=os.getenv("BQ_TABLE", "diagnostics"),
-        prompt_version=os.getenv("PROMPT_VERSION", "v1"),
+        prompt_version=os.getenv("PROMPT_VERSION", "v2"),
         price_input_usd_per_mtok=_float("PRICE_INPUT_USD_PER_MTOK", 1.50),
         price_output_usd_per_mtok=_float("PRICE_OUTPUT_USD_PER_MTOK", 9.00),
         llm_backend=os.getenv("LLM_BACKEND", "vertex"),
