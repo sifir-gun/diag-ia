@@ -8,8 +8,8 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 
 ## Phase 1. Vérification locale
 - [x] Installer le venv et faire passer `pytest -q` (2026-10-20, Python 3.12, 58 tests)
-- [ ] Lancer le serveur avec les adaptateurs locaux et faire un diagnostic dans le navigateur
-- [ ] Ajuster les questions ou le design si besoin
+- [x] Lancer le serveur avec les adaptateurs locaux et faire un diagnostic dans le navigateur (2026-10-20)
+- [x] Ajuster les questions ou le design si besoin (2026-10-20, aucun changement nécessaire)
 - [x] Créer le repo GitHub public `diag-ia` et pousser `main` (2026-10-20, https://github.com/sifir-gun/diag-ia)
 
 ## Phase 2. Fondations GCP

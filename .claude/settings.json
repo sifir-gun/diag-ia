@@ -21,7 +21,12 @@
       "Bash(git push *)",
       "Bash(gcloud run deploy *)",
       "Bash(gcloud builds submit *)",
-      "Bash(bq query *)"
+      "Bash(bq query *)",
+      "Bash(gh repo create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gcloud * create *)",
+      "Bash(gcloud * add-iam-policy-binding *)",
+      "Bash(bq mk *)"
     ],
     "deny": [
       "Bash(rm -rf *)",
