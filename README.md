@@ -161,7 +161,7 @@ bq mk --table \
   wengraf-diag-ia:diagnostic.diagnostics ./sql/schema_diagnostics.json
 ```
 
-Enfin, dans le menu Partager du dataset `diagnostic`, donne à `diag-app` le rôle BigQuery Data Editor sur ce dataset uniquement. C’est le quatrième et dernier rôle du compte de service.
+Enfin, dans le menu Partager de la table `diagnostic.diagnostics`, donne à `diag-app` le rôle BigQuery Data Editor sur cette table uniquement. C’est le quatrième et dernier rôle du compte de service. Il est posé sur la table plutôt que sur le dataset parce que l’application n’écrit et ne relit que cette table : toute autre table ajoutée plus tard au dataset lui reste inaccessible.
 
 ## Déployer avec Cloud Build
 

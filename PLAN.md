@@ -18,7 +18,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Créer le compte de service `diag-app` et ses trois rôles projet (2026-10-20, aiplatform.user, bigquery.jobUser, logging.logWriter)
 - [x] Créer le dépôt Artifact Registry `diag-repo` (2026-10-20, Docker, europe-west1)
 - [x] Créer le dataset `diagnostic` et la table `diagnostics` (2026-10-20, EU, partition par jour sur created_at, 19 colonnes conformes au schéma)
-- [ ] (Guney, console) Donner à `diag-app` le rôle BigQuery Data Editor sur le dataset
+- [x] (Guney, console) Donner à `diag-app` le rôle BigQuery Data Editor sur la table `diagnostics` (2026-10-20, posé sur la table plutôt que sur le dataset parce que l’application n’utilise que cette table, droit plus strict)
 
 ## Phase 3. Vrais services en local
 - [ ] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent
