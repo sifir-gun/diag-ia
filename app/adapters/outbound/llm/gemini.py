@@ -76,7 +76,9 @@ class _AdviceSchema(BaseModel):
     _decode = field_validator("summary", mode="before")(_decode_entities)
 
 
-# Délai maximal d'un essai : détail de transport. Le budget total est une règle du cas d'usage.
+# Délai httpx d'un essai, par opération réseau (connexion, pool, envoi, lecture entre deux paquets)
+# et non pour l'appel entier :
+# détail de transport. Le budget total est une règle du cas d'usage.
 TIMEOUT_S = 20
 TEMPORARY_CODES = (429, 503)
 

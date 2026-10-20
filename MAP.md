@@ -48,7 +48,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Adaptateurs de sortie (`app/adapters/outbound/`)
 
-- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption, niveau de réflexion inscrit dans le champ `model` (`gemini-3.5-flash/minimal`), délai de 20 s par appel, 503, 429 et délai dépassé traduits en `AdviceTemporarilyUnavailable`.
+- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption, niveau de réflexion inscrit dans le champ `model` (`gemini-3.5-flash/minimal`), délai httpx de 20 s par phase de l’appel, 503, 429 et délai dépassé traduits en `AdviceTemporarilyUnavailable`.
 - `app/adapters/outbound/llm/fake.py` : faux modèle pour le local et les tests.
 - `app/adapters/outbound/llm/rendering.py` : mise en forme des réponses envoyées au modèle.
 - `app/adapters/outbound/persistence/bigquery.py` : stockage BigQuery.

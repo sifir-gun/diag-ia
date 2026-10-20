@@ -6,10 +6,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class RetryPolicy:
-    """Au plus 3 essais, attente croissante, et jamais plus de `budget_s` d'attente pour le visiteur.
+    """Au plus 3 essais, attente croissante, dans un budget de `budget_s` secondes.
 
-    `attempt_timeout_s` est le délai maximal d'un essai, fixé par l'adaptateur : il sert
-    à ne lancer un nouvel essai que s'il peut se terminer dans le budget.
+    `attempt_timeout_s` est le délai d'un essai annoncé par l'adaptateur : un nouvel essai
+    n'est lancé que si attente + délai tiennent dans le budget. C'est un budget, pas une
+    garantie : le délai de l'adaptateur Gemini s'applique par phase httpx, pas à l'appel entier.
     """
     attempt_timeout_s: float
     delays_s: tuple[float, ...] = (1.0, 2.0)

@@ -154,7 +154,7 @@ def test_other_api_errors_are_not_temporary(code):
         call(failing_generator(api_error(code)))
 
 
-def test_each_call_has_a_20_second_timeout():
+def test_each_call_sets_a_20_second_http_timeout():
     generator, models = stub_generator()
     call(generator)
     assert models.calls[0]["config"].http_options.timeout == 20_000
