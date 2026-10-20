@@ -14,7 +14,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 
 ## Phase 2. Fondations GCP
 - [x] (Guney, console) Créer le projet, lier la facturation, poser l’alerte budget à 5 € (2026-10-20, facturation liée à 0152C9-7D5274-E5751C, budget posé par Guney)
-- [ ] Activer les APIs
+- [x] Activer les APIs (2026-10-20, run, cloudbuild, artifactregistry, bigquery, aiplatform, logging)
 - [ ] Créer le compte de service `diag-app` et ses trois rôles projet
 - [ ] Créer le dépôt Artifact Registry `diag-repo`
 - [ ] Créer le dataset `diagnostic` et la table `diagnostics`
