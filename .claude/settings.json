@@ -33,7 +33,8 @@
       "Bash(gcloud projects delete *)",
       "Bash(gcloud * delete *)",
       "Bash(bq rm *)",
-      "Edit(prompts/diagnostic_v1.md)"
+      "Edit(prompts/diagnostic_v1.md)",
+      "Edit(prompts/diagnostic_v2.md)"
     ]
   },
   "hooks": {

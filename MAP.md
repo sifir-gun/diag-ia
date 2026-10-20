@@ -8,7 +8,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 |---|---|---|
 | Changer une question ou ses options | `app/domain/questions.py`, puis les poids dans `app/domain/scoring.py` si la question est notée, et `tests/fakes.py` | `test_every_scored_option_has_a_weight` |
 | Changer la grille de score ou les niveaux | `app/domain/scoring.py` | `test_score_is_deterministic_and_explained` |
-| Changer la consigne du modèle | Une nouvelle version dans le dossier prompts, avec le skill `nouvelle-version-prompt` | `test_diagnostic_is_recorded_then_returned` |
+| Changer la consigne du modèle | Une nouvelle version dans le dossier prompts, avec le skill `nouvelle-version-prompt` | `test_diagnostic_is_recorded_then_returned`, `test_published_prompts_are_frozen`, `test_default_prompt_version_loads` |
 | Changer le format des recommandations | `app/domain/model.py`, `app/domain/advice.py`, `app/adapters/outbound/llm/gemini.py`, `app/adapters/outbound/llm/fake.py`, `app/adapters/inbound/web/schemas.py`, `app/adapters/inbound/web/templates/result.html`, `app/adapters/outbound/persistence/rows.py` | `test_normalize_bounds_and_truncates`, `test_row_round_trip_as_bigquery_returns_it` |
 | Ajouter une colonne BigQuery | `app/adapters/outbound/persistence/rows.py`, `sql/schema_diagnostics.json`, `sql/audit.sql` | `test_row_round_trip_as_bigquery_returns_it` |
 | Changer le design | `app/adapters/inbound/web/static/style.css` et les gabarits de `app/adapters/inbound/web/templates/` | `test_form_lists_all_questions` |
