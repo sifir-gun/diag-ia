@@ -21,7 +21,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] (Guney, console) Donner à `diag-app` le rôle BigQuery Data Editor sur la table `diagnostics` (2026-10-20, posé sur la table plutôt que sur le dataset parce que l’application n’utilise que cette table, droit plus strict)
 
 ## Phase 3. Vrais services en local
-- [ ] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent
+- [x] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent (2026-10-20, répond, google-genai 2.31.0)
 - [ ] Faire un diagnostic réel avec `LLM_BACKEND=vertex` et `STORE_BACKEND=bigquery`
 - [ ] Vérifier la ligne avec `python -m app.verify`
 
