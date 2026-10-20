@@ -17,7 +17,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Activer les APIs (2026-10-20, run, cloudbuild, artifactregistry, bigquery, aiplatform, logging)
 - [x] Créer le compte de service `diag-app` et ses trois rôles projet (2026-10-20, aiplatform.user, bigquery.jobUser, logging.logWriter)
 - [x] Créer le dépôt Artifact Registry `diag-repo` (2026-10-20, Docker, europe-west1)
-- [ ] Créer le dataset `diagnostic` et la table `diagnostics`
+- [x] Créer le dataset `diagnostic` et la table `diagnostics` (2026-10-20, EU, partition par jour sur created_at, 19 colonnes conformes au schéma)
 - [ ] (Guney, console) Donner à `diag-app` le rôle BigQuery Data Editor sur le dataset
 
 ## Phase 3. Vrais services en local
