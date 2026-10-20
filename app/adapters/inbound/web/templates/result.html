@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Votre diagnostic de maturité IA{% endblock %}
+{% block content %}
+<main class="result">
+  <section class="score-block">
+    <h1>Votre diagnostic</h1>
+    <p class="score"><span class="score-num">{{ r.score }}</span><span class="score-max">/100</span></p>
+    <p class="level">{{ r.maturity_label }}</p>
+    <div class="ruler" role="img" aria-label="Score de {{ r.score }} sur 100, niveau {{ r.maturity_label }}">
+      <div class="ruler-scale"></div>
+      <div class="ruler-fill" style="width: {{ r.score }}%"></div>
+    </div>
+    <div class="ruler-legend" aria-hidden="true"><span>Débutant</span><span>En démarrage</span><span>En structuration</span><span>Avancé</span></div>
+    <p class="summary">{{ r.summary }}</p>
+  </section>
+
+  <section class="priorities">
+    <h2>Vos trois priorités</h2>
+    <ol>
+      {% for rec in r.recommendations %}
+      {% set pct = (rec.confidence * 100) | round | int %}
+      <li class="prio">
+        <h3>{{ rec.title }}</h3>
+        <p>{{ rec.rationale }}</p>
+        <dl class="facts">
+          <div><dt>Gain estimé</dt><dd>{{ rec.estimated_gain }}</dd></div>
+          <div><dt>Effort</dt><dd>{{ rec.effort | capitalize }}</dd></div>
+          <div><dt>Confiance</dt><dd><span class="conf" aria-hidden="true"><span class="conf-bar" style="width: {{ pct }}%"></span></span>{{ pct }} %</dd></div>
+        </dl>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="breakdown">
+    <h2>Comment ce score est calculé</h2>
+    <p>Le score ne vient pas du modèle d’IA. Il est calculé par une grille fixe, identique pour toutes les entreprises.</p>
+    <dl>
+      {% for item in breakdown %}
+      <div class="bd-row"><dt>{{ item.label }}</dt><dd>{{ item.points }} / {{ item.max }}</dd></div>
+      {% endfor %}
+    </dl>
+  </section>
+
+  {% if contact_email %}
+  <section class="cta">
+    <h2>Passer de la piste au projet</h2>
+    <p>Un échange de 30 minutes pour chiffrer précisément la première priorité.</p>
+    <a class="btn" href="mailto:{{ contact_email }}?subject={{ ('Diagnostic IA ' ~ r.diagnostic_id) | urlencode }}">Écrire à Agence Wengraf</a>
+  </section>
+  {% endif %}
+
+  <section class="trace">
+    <h2>Traçabilité</h2>
+    <dl>
+      <div><dt>Référence du diagnostic</dt><dd><code>{{ r.diagnostic_id }}</code></dd></div>
+      <div><dt>Empreinte SHA-256</dt><dd><code>{{ r.record_sha256 }}</code></dd></div>
+      <div><dt>Modèle et version de la consigne</dt><dd>{{ r.model }}, consigne {{ r.prompt_version }}</dd></div>
+    </dl>
+  </section>
+
+  <p class="again"><a href="/">Refaire un diagnostic</a></p>
+</main>
+{% endblock %}

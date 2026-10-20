@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Diagnostic de maturité IA{% endblock %}</title>
+<meta name="description" content="Dix questions pour savoir où l’IA et l’automatisation peuvent aider votre entreprise en premier.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <a class="brand" href="/">Agence Wengraf</a>
+    <span class="brand-sub">Architecte de systèmes IA. De la conception à la production.</span>
+  </header>
+  {% block content %}{% endblock %}
+  <footer class="foot">
+    Score calculé par une grille fixe, recommandations générées par Gemini sur Vertex AI. Chaque diagnostic est enregistré avec une empreinte SHA-256.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+# Déclenché à chaque push sur main : tests, image, push, déploiement.
+# Lancement manuel : gcloud builds submit --config cloudbuild.yaml \
+#   --substitutions=SHORT_SHA=$(git rev-parse --short HEAD)
+substitutions:
+  _REGION: europe-west1
+  _REPO: diag-repo
+  _SERVICE: diag-ia
+  _RUNTIME_SA: diag-app
+  _VERTEX_LOCATION: global
+  _MODEL: gemini-3.5-flash
+  _CONTACT_EMAIL: ""
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - id: tests
+    name: python:3.12-slim
+    entrypoint: bash
+    args:
+      - -c
+      - pip install -q -r requirements.txt -r requirements-dev.txt && python -m pytest -q
+
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - --region=${_REGION}
+      - --service-account=${_RUNTIME_SA}@$PROJECT_ID.iam.gserviceaccount.com
+      - --allow-unauthenticated
+      - --max-instances=3
+      - --memory=512Mi
+      - --set-env-vars=GCP_PROJECT=$PROJECT_ID,VERTEX_LOCATION=${_VERTEX_LOCATION},GEMINI_MODEL=${_MODEL},CONTACT_EMAIL=${_CONTACT_EMAIL}

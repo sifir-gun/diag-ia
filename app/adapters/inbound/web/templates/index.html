@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <section class="intro">
+    <h1>Où l’IA peut-elle vous faire gagner du temps en premier ?</h1>
+    <p>Dix questions sur votre entreprise, environ trois minutes. Vous obtenez un score de maturité calculé de façon transparente et trois priorités chiffrées, chacune avec son niveau de confiance.</p>
+  </section>
+
+  {% if errors %}
+  <div class="alert" role="alert">Certaines réponses manquent ou sont à corriger. Elles sont signalées ci-dessous.</div>
+  {% endif %}
+
+  <form method="post" action="/diagnostic" class="quiz" novalidate>
+    {% for q in questions %}
+    {% set v = values.get(q.key) %}
+    <fieldset class="q{% if errors.get(q.key) %} has-error{% endif %}" id="q-{{ q.key }}">
+      <legend><span class="q-num">{{ loop.index }}</span><span class="q-label">{{ q.label }}</span></legend>
+      {% if q.help %}<p class="q-help">{{ q.help }}</p>{% endif %}
+      {% if q.kind == "text" %}
+      <div class="indent">
+        <textarea name="{{ q.key }}" rows="3" maxlength="600" aria-label="{{ q.label }}">{{ v or "" }}</textarea>
+      </div>
+      {% else %}
+      <div class="options">
+        {% for opt in q.options %}
+        {% set checked = (v == opt) if q.kind == "single" else (v and opt in v) %}
+        <label class="opt">
+          <input type="{{ 'radio' if q.kind == 'single' else 'checkbox' }}" name="{{ q.key }}" value="{{ opt }}"{% if checked %} checked{% endif %}>
+          <span>{{ opt }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if errors.get(q.key) %}<p class="q-error">{{ errors[q.key] }}</p>{% endif %}
+    </fieldset>
+    {% endfor %}
+
+    <section class="submit-zone">
+      <label class="field">
+        <span>Votre e-mail, si vous souhaitez être recontacté (facultatif)</span>
+        <input type="email" name="contact_email" value="{{ email or '' }}" autocomplete="email">
+      </label>
+      {% if errors.get("contact_email") %}<p class="q-error flush">{{ errors["contact_email"] }}</p>{% endif %}
+      <label class="consent">
+        <input type="checkbox" name="consent"{% if consent %} checked{% endif %}>
+        <span>J’accepte que mes réponses soient analysées par un modèle d’IA et conservées pour assurer la traçabilité de ce diagnostic.</span>
+      </label>
+      {% if errors.get("consent") %}<p class="q-error flush">{{ errors["consent"] }}</p>{% endif %}
+      <button type="submit" class="btn">Lancer le diagnostic</button>
+      <p class="fine">Vos réponses sont conservées dans l’Union européenne, avec une empreinte qui permet de prouver qu’elles n’ont pas été modifiées.</p>
+    </section>
+  </form>
+</main>
+<script>
+  document.querySelector("form.quiz").addEventListener("submit", function () {
+    var button = this.querySelector("button[type=submit]");
+    button.disabled = true;
+    button.textContent = "Analyse en cours…";
+  });
+</script>
+{% endblock %}

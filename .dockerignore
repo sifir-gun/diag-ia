@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+tests
+sql
+.env
+README.md
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+SPEC.md
+PLAN.md
+.claude
+.worktreeinclude
+MAP.md

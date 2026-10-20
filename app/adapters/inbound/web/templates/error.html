@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Diagnostic indisponible{% endblock %}
+{% block content %}
+<main class="error-page">
+  <h1>Le diagnostic n’a pas pu aboutir</h1>
+  <p>{{ message }}</p>
+  <p><a class="btn" href="/">Revenir au questionnaire</a></p>
+</main>
+{% endblock %}

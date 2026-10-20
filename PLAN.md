@@ -1,0 +1,47 @@
+# Plan
+
+Coche une tâche quand elle est terminée et vérifiée, avec la date.
+
+## Phase 0. Squelette
+- [x] Repo en architecture hexagonale, 56 tests, règle de dépendance testée
+- [x] Écosystème Claude Code : AGENTS.md, CLAUDE.md, MAP.md vérifiée par un test, SPEC.md, PLAN.md, règles, sous-agent, skills, hook de tests
+
+## Phase 1. Vérification locale
+- [ ] Installer le venv et faire passer `pytest -q`
+- [ ] Lancer le serveur avec les adaptateurs locaux et faire un diagnostic dans le navigateur
+- [ ] Ajuster les questions ou le design si besoin
+- [ ] Créer le repo GitHub public `diag-ia` et pousser `main`
+
+## Phase 2. Fondations GCP
+- [ ] (Guney, console) Créer le projet, lier la facturation, poser l’alerte budget à 5 €
+- [ ] Activer les APIs
+- [ ] Créer le compte de service `diag-app` et ses trois rôles projet
+- [ ] Créer le dépôt Artifact Registry `diag-repo`
+- [ ] Créer le dataset `diagnostic` et la table `diagnostics`
+- [ ] (Guney, console) Donner à `diag-app` le rôle BigQuery Data Editor sur le dataset
+
+## Phase 3. Vrais services en local
+- [ ] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent
+- [ ] Faire un diagnostic réel avec `LLM_BACKEND=vertex` et `STORE_BACKEND=bigquery`
+- [ ] Vérifier la ligne avec `python -m app.verify`
+
+## Phase 4. Déploiement
+- [ ] Créer le compte de service `diag-build` et ses rôles
+- [ ] (Guney, console) Connecter GitHub et créer le déclencheur Cloud Build sur `main`
+- [ ] Premier déploiement réussi, URL Cloud Run notée ici :
+
+## Phase 5. Observabilité
+- [ ] Créer le dataset `audit_logs` et le sink `diag-audit`
+- [ ] Vérifier les 3 requêtes de `sql/audit.sql` sur des diagnostics réels
+- [ ] (Guney, navigateur) Tableau de bord Looker Studio
+- [ ] Mesurer le coût réel par diagnostic et le noter dans le README
+
+## Phase 6. Vitrine
+- [ ] Captures du formulaire, d’un résultat et du tableau de bord dans le README
+- [ ] Mettre à jour le CV et les profils
+- [ ] Préparer les 3 réponses d’entretien : services et pourquoi, droits et secrets, coût
+
+## Bonus
+- [ ] Limitation par adresse IP sur le formulaire
+- [ ] Chaîne de hachage entre diagnostics
+- [ ] Infrastructure en Terraform
