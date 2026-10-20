@@ -1,6 +1,6 @@
 ---
 name: review-points-recurrents
-description: Points à vérifier à chaque relecture diag-ia (prompts, adaptateur Gemini, normalisation du conseil), constatés lors des relectures
+description: Points à vérifier à chaque relecture diag-ia (prompts, adaptateur Gemini, normalisation du conseil, configuration stricte), constatés lors des relectures
 metadata:
   type: project
 ---
@@ -15,7 +15,11 @@ metadata:
 - `_decode_entity` (gemini.py) applique `_printable` aux entités nommées comme aux codes : « &Tab; » et « &ZeroWidthSpace; » restent intacts et le domaine rejette ; garder ces deux tests. Guney a clos les raffinements sur les entités : toute remarque mineure à ce sujet va en une ligne dans la section Bonus du PLAN, seul un manquement à AGENTS.md, à l’échec fermé ou à la règle de dépendance est bloquant.
 - Un adaptateur de sortie peut importer `app.domain` (ex. `HTML_ENTITY` dans gemini.py) : conforme à `tests/test_architecture.py`.
 - Les commentaires de code utilisent l’apostrophe droite ; la règle ’ ne vaut que pour les textes visibles par l’utilisateur.
+- Configuration (phase 5) : `get_settings()` valide backends, projet et `PRICE_*` (`ConfigurationError`) ; les `else` de `bootstrap.py` comptent sur cette validation, un `Settings(...)` construit à la main la contourne.
+- Toute fixture qui appelle `get_settings()` doit fixer `LLM_BACKEND=fake` et `STORE_BACKEND=memory` (ou un projet), sinon la config par défaut est refusée ; vider le cache lru avant et après.
+- Cloud Run reçoit `GCP_PROJECT` par `--set-env-vars` de `cloudbuild.yaml` : toute nouvelle variable obligatoire doit y figurer, sinon la révision ne démarre plus.
+- Cocher la tâche de `PLAN.md` fait partie du commit (CLAUDE.md) : le signaler si la case reste vide.
 - Ce dossier de mémoire est versionné dans un dépôt public : ni secret ni donnée personnelle, et pas de tiret cadratin (règle de style du projet).
 
 **Why:** constats faits pendant les relectures de la consigne v2 et du décodage des entités HTML renvoyées par Gemini.
-**How to apply:** passer ces points en revue dès qu’un diff touche `prompts/`, `app/adapters/outbound/llm/`, `app/domain/advice.py` ou ce dossier.
+**How to apply:** passer ces points en revue dès qu’un diff touche `prompts/`, `app/adapters/outbound/llm/`, `app/domain/advice.py`, `app/config.py`, `cloudbuild.yaml` ou ce dossier.
