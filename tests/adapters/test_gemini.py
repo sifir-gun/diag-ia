@@ -50,6 +50,8 @@ def test_real_entities_are_decoded(entity, char):
 @pytest.mark.parametrize("entity", [
     "&notit;",     # nom inconnu qui commence par l'entité historique « &not »
     "&eacutex;",   # nom inconnu qui commence par « &eacute »
+    "&Tab;",       # entité nommée connue, mais tabulation non imprimable
+    "&ZeroWidthSpace;",  # entité nommée connue, mais caractère invisible (Cf)
     "&#0;",        # caractère nul
     "&#146;",      # caractère de contrôle C1
     "&#xD800;",    # demi-code de substitution, pas un caractère

@@ -29,7 +29,11 @@ def _decode_entity(match: re.Match[str]) -> str:
     entity = match.group(0)
     if entity[1] != "#":
         # Nom exact uniquement : html.unescape décoderait « &notit; » en « ¬it; ».
-        return html5.get(entity[1:], entity)
+        # Même contrôle que pour les codes : « &Tab; » reste intact comme « &#9; ».
+        decoded = html5.get(entity[1:])
+        if decoded is None or not all(_printable(char) for char in decoded):
+            return entity
+        return decoded
     hexa = entity[2] in "xX"
     digits = (entity[3:-1] if hexa else entity[2:-1]).lstrip("0") or "0"
     # U+10FFFF tient en 6 chiffres hexadécimaux ou 7 décimaux. Au-delà, on ne
