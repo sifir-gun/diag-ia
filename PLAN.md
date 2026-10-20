@@ -37,7 +37,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [ ] (Guney, navigateur) Tableau de bord Looker Studio
 - [ ] Mesurer le coût réel par diagnostic et le noter dans le README
 - [ ] Tester un niveau de réflexion plus bas de Gemini sur les 3 profils (débutant, en démarrage, avancé) : en v2, latence jusqu’à 55 s et coût autour de 0,03 $ par diagnostic
-- [ ] Consigne v3 : interdire de reformuler un chiffre des réponses (« Plus de 50 heures » devenu « les 50 heures perdues ») et mieux calibrer la confiance (0,95 jugé trop optimiste)
+- [ ] Consigne v3 : interdire de reformuler un chiffre des réponses (« Plus de 50 heures » devenu « les 50 heures perdues »), interdire de prendre les exemples d’une option pour des faits (« Usage individuel (ChatGPT, Copilot…) » devenu « un usage individuel de Copilot ») et mieux calibrer la confiance (0,95 jugé trop optimiste)
 
 ## Phase 6. Vitrine
 - [ ] Captures du formulaire, d’un résultat et du tableau de bord dans le README
