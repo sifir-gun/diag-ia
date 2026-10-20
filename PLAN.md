@@ -32,11 +32,13 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Premier déploiement réussi, URL Cloud Run notée ici : https://diag-ia-23ifvkfvfq-ew.a.run.app (2026-10-20, build 284269b0 sur 7997b16, 4 étapes au vert, révision diag-ia-00001-jpc sous diag-app, / et /health répondent 200)
 
 ## Phase 5. Observabilité
+- [ ] La configuration refuse de démarrer si `GCP_PROJECT` est vide avec les adaptateurs réels (`LLM_BACKEND=vertex` ou `STORE_BACKEND=bigquery`), ou si une valeur `PRICE_*` est invalide, avec ses tests. Aujourd’hui le projet vide n’échoue qu’à l’appel BigQuery (404 sur `projects//jobs`) et `_float` remplace en silence une valeur invalide par la valeur par défaut
+- [ ] Tester un niveau de réflexion plus bas de Gemini sur les 3 profils (débutant, en démarrage, avancé) : en v2, latence jusqu’à 55 s en local et 74 s en production (diagnostic 3f8e299880bf42e195dd1f7e6073044d, requête `POST /diagnostic`), coût autour de 0,03 $ par diagnostic
+- [ ] Faire ignorer au déclencheur `deploy-main` les fichiers de documentation (`README.md`, `PLAN.md`, `MAP.md`, `SPEC.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/**`), mais pas `prompts/`, qui change le comportement de l’application
 - [ ] Créer le dataset `audit_logs` et le sink `diag-audit`
 - [ ] Vérifier les 3 requêtes de `sql/audit.sql` sur des diagnostics réels
 - [ ] (Guney, navigateur) Tableau de bord Looker Studio
 - [ ] Mesurer le coût réel par diagnostic et le noter dans le README
-- [ ] Tester un niveau de réflexion plus bas de Gemini sur les 3 profils (débutant, en démarrage, avancé) : en v2, latence jusqu’à 55 s et coût autour de 0,03 $ par diagnostic
 - [ ] Consigne v3 : interdire de reformuler un chiffre des réponses (« Plus de 50 heures » devenu « les 50 heures perdues »), interdire de prendre les exemples d’une option pour des faits (« Usage individuel (ChatGPT, Copilot…) » devenu « un usage individuel de Copilot ») et mieux calibrer la confiance (0,95 jugé trop optimiste)
 
 ## Phase 6. Vitrine
