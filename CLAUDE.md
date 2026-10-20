@@ -8,3 +8,4 @@
 - Pour ajouter un service externe, utilise le skill `nouveau-port`. Pour changer le prompt, le skill `nouvelle-version-prompt`.
 - Montre chaque commande `gcloud` ou `bq` qui crée, modifie ou supprime une ressource, et attends mon accord.
 - Un hook relance les tests quand tu termines une réponse qui a modifié du code. S’il échoue, corrige avant de conclure.
+- Pour séparer des commits, ajoute les fichiers un par un avec `git add <fichier>`. Jamais `git stash`.
