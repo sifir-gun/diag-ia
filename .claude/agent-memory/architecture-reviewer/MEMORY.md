@@ -1,1 +1,1 @@
-- [Points de relecture récurrents](review_points_recurrents.md) : prompts figés, pièges html.unescape et Pydantic, config stricte, THINKING_LEVEL et champ model, mémoire publique
+- [Points de relecture récurrents](review_points_recurrents.md) : prompts figés, pièges html.unescape et Pydantic, config stricte, THINKING_LEVEL et champ model, nouvel essai Gemini et budget, mémoire publique

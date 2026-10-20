@@ -21,6 +21,12 @@ metadata:
 - Champ `model` des diagnostics = `<GEMINI_MODEL>/<THINKING_LEVEL>` depuis le 2026-10-21 (couvert par l’empreinte) ; les anciens gardent `gemini-3.5-flash` sans suffixe et doivent rester vérifiables.
 - google-genai 2.31 accepte un `thinking_level` inconnu avec un simple `UserWarning` : `_choice("THINKING_LEVEL", ...)` de `app/config.py` est le seul garde-fou, ne pas l’affaiblir.
 - `GeminiAdviceGenerator` accepte un `client` injectable ; les tests qui l’instancient importent quand même `google.genai.types` (présent dans requirements.txt, donc toléré).
+- Nouvel essai (2026-10-21) : budget de 60 s dans `app/application/retry.py`, délai de 20 s par appel dans l’adaptateur Gemini (`TIMEOUT_S`, lu par bootstrap) ; ne pas déplacer l’un dans l’autre.
+- google-genai 2.31 : sans `retry_options`, le SDK ne réessaie jamais (`stop_after_attempt(1)`) ; le seul nouvel essai est celui du cas d’usage.
+- `HttpOptions.timeout` devient un `httpx.Timeout` par phase (connexion, lecture, écriture), pas un plafond total : le budget de 60 s reste nominal, à quelques secondes près.
+- Avec un certificat client mTLS, le SDK passe par `requests` (AuthorizedSession) : son délai dépassé ne serait pas un `httpx.TimeoutException`, donc pas réessayé.
+- Les `APIError` non passagères (400, 500) sortent de l’adaptateur (toléré, attrapé en `advice_failed` avec le seul nom du type) ; à signaler sans bloquer.
+- `latency_ms` (BigQuery et `diagnostic_completed`) inclut les nouveaux essais et attentes ; `attempts` n’existe que dans l’événement.
 - Cocher la tâche de `PLAN.md` fait partie du commit (CLAUDE.md) : le signaler si la case reste vide.
 - Ce dossier de mémoire est versionné dans un dépôt public : ni secret ni donnée personnelle, et pas de tiret cadratin (règle de style du projet).
 
