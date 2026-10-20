@@ -13,7 +13,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Créer le repo GitHub public `diag-ia` et pousser `main` (2026-10-20, https://github.com/sifir-gun/diag-ia)
 
 ## Phase 2. Fondations GCP
-- [ ] (Guney, console) Créer le projet, lier la facturation, poser l’alerte budget à 5 €
+- [x] (Guney, console) Créer le projet, lier la facturation, poser l’alerte budget à 5 € (2026-10-20, facturation liée à 0152C9-7D5274-E5751C, budget posé par Guney)
 - [ ] Activer les APIs
 - [ ] Créer le compte de service `diag-app` et ses trois rôles projet
 - [ ] Créer le dépôt Artifact Registry `diag-repo`

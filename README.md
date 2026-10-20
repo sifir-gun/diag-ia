@@ -140,7 +140,7 @@ gcloud config set project wengraf-diag-ia
 # APIs
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
   artifactregistry.googleapis.com bigquery.googleapis.com \
-  aiplatform.googleapis.com secretmanager.googleapis.com logging.googleapis.com
+  aiplatform.googleapis.com logging.googleapis.com
 
 # Compte de service de l’application, avec trois rôles au niveau du projet
 gcloud iam service-accounts create diag-app --display-name="Application diagnostic IA"
