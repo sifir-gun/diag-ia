@@ -23,7 +23,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 ## Phase 3. Vrais services en local
 - [x] Vérifier que `gemini-3.5-flash` répond en location `global`, sinon choisir le Flash le plus récent (2026-10-20, répond, google-genai 2.31.0)
 - [x] Faire un diagnostic réel avec `LLM_BACKEND=vertex` et `STORE_BACKEND=bigquery` (2026-10-20, référence 5d75355694604c0c9ec8d73eb0c9614d, 954 tokens en entrée, 2 563 en sortie, 20 s, 0,0245 $)
-- [ ] Vérifier la ligne avec `python -m app.verify`
+- [x] Vérifier la ligne avec `python -m app.verify` (2026-10-20, intègre, code de sortie 0)
 
 ## Phase 4. Déploiement
 - [ ] Créer le compte de service `diag-build` et ses rôles
