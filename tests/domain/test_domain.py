@@ -55,6 +55,32 @@ def test_normalize_rejects_broken_advice(advice):
         normalize_advice(advice)
 
 
+@pytest.mark.parametrize("advice", [
+    Advice("Niveau &laquo; En d&eacute;marrage &raquo;", (rec(),)),
+    Advice("Synthèse", (Recommendation("R&amp;D", "Justification", "2 h", "moyen", 0.5),)),
+    Advice("Synthèse", (Recommendation("Titre", "L&#39;équipe", "2 h", "moyen", 0.5),)),
+    Advice("Synthèse", (Recommendation("Titre", "Justification", "2 &agrave; 5 h", "moyen", 0.5),)),
+])
+def test_normalize_rejects_html_entities_left_by_the_adapter(advice):
+    with pytest.raises(InvalidAdvice):
+        normalize_advice(advice)
+
+
+def test_normalize_keeps_a_bare_ampersand():
+    advice = Advice("R&D et PME", (Recommendation("Lancer la R&D", "Justification", "2 h", "moyen", 0.5),))
+    assert normalize_advice(advice).recommendations[0].title == "Lancer la R&D"
+
+
+def test_normalize_uses_typographic_apostrophes():
+    advice = Advice("L'IA aide l'équipe",
+                    (Recommendation("Former l'équipe", "Aujourd'hui", "Jusqu'à 5 h", "moyen", 0.5),))
+    clean = normalize_advice(advice)
+    assert clean.summary == "L’IA aide l’équipe"
+    rec_out = clean.recommendations[0]
+    assert (rec_out.title, rec_out.rationale, rec_out.estimated_gain) == (
+        "Former l’équipe", "Aujourd’hui", "Jusqu’à 5 h")
+
+
 def test_hash_ignores_key_order():
     assert sha256_json({"a": 1, "b": 2}) == sha256_json({"b": 2, "a": 1})
 

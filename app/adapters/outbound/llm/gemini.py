@@ -6,13 +6,20 @@ Authentification par le compte de service de Cloud Run : aucune clé API.
 """
 from __future__ import annotations
 
+import html
 from typing import Literal
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, field_validator
 
 from app.adapters.outbound.llm.rendering import build_user_content
 from app.application.ports import AdviceGenerationError, AdviceRequest, GeneratedAdvice, Prompt
 from app.domain.model import Advice, Recommendation
+
+
+def _decode_entities(value: object) -> object:
+    # Le modèle renvoie parfois des entités HTML (&eacute;) : on les décode
+    # avant validation, pour que « élevé » passe aussi le contrôle du Literal.
+    return html.unescape(value) if isinstance(value, str) else value
 
 
 class _RecommendationSchema(BaseModel):
@@ -22,10 +29,15 @@ class _RecommendationSchema(BaseModel):
     effort: Literal["faible", "moyen", "élevé"]
     confidence: float
 
+    _decode = field_validator("title", "rationale", "estimated_gain", "effort",
+                              mode="before")(_decode_entities)
+
 
 class _AdviceSchema(BaseModel):
     summary: str
     recommendations: list[_RecommendationSchema]
+
+    _decode = field_validator("summary", mode="before")(_decode_entities)
 
 
 class GeminiAdviceGenerator:
