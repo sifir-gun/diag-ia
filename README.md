@@ -190,6 +190,12 @@ Dans la console, Cloud Build > Déclencheurs, région `europe-west1` : crée une
 gcloud builds triggers describe deploy-main --region=europe-west1
 ```
 
+Le déclencheur ignore les fichiers de documentation (`README.md`, `PLAN.md`, `MAP.md`, `SPEC.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/**`) : un push qui ne touche qu’eux ne relance ni build ni déploiement. `prompts/` n’en fait pas partie, puisqu’une consigne change le comportement de l’application. Pour poser cette liste, on exporte la configuration avec `describe --format=yaml`, on ajoute le champ `ignoredFiles`, puis on la réimporte : `import` remplace alors tout le déclencheur par le fichier, sans toucher aux autres champs.
+
+```bash
+gcloud builds triggers import --source=deploy-main.yaml --region=europe-west1
+```
+
 **Secret Manager** est activé pour la connexion GitHub : Cloud Build y stocke le jeton OAuth de la connexion, dans un secret régional en `europe-west1`. Il ne sert pas à l’application, qui n’a aucun secret : elle s’authentifie avec son compte de service, et `diag-app` n’a aucun rôle Secret Manager.
 
 Une configuration invalide (backend inconnu, `GCP_PROJECT` vide avec les adaptateurs réels, prix `PRICE_*` invalide) empêche la révision Cloud Run de démarrer, donc le déploiement échoue et l’ancienne révision continue de servir.
