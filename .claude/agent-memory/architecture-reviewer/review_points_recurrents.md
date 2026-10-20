@@ -18,6 +18,9 @@ metadata:
 - Configuration (phase 5) : `get_settings()` valide backends, projet et `PRICE_*` (`ConfigurationError`) ; les `else` de `bootstrap.py` comptent sur cette validation, un `Settings(...)` construit à la main la contourne.
 - Toute fixture qui appelle `get_settings()` doit fixer `LLM_BACKEND=fake` et `STORE_BACKEND=memory` (ou un projet), sinon la config par défaut est refusée ; vider le cache lru avant et après.
 - Cloud Run reçoit `GCP_PROJECT` par `--set-env-vars` de `cloudbuild.yaml` : toute nouvelle variable obligatoire doit y figurer, sinon la révision ne démarre plus.
+- Champ `model` des diagnostics = `<GEMINI_MODEL>/<THINKING_LEVEL>` depuis le 2026-10-21 (couvert par l’empreinte) ; les anciens gardent `gemini-3.5-flash` sans suffixe et doivent rester vérifiables.
+- google-genai 2.31 accepte un `thinking_level` inconnu avec un simple `UserWarning` : `_choice("THINKING_LEVEL", ...)` de `app/config.py` est le seul garde-fou, ne pas l’affaiblir.
+- `GeminiAdviceGenerator` accepte un `client` injectable ; les tests qui l’instancient importent quand même `google.genai.types` (présent dans requirements.txt, donc toléré).
 - Cocher la tâche de `PLAN.md` fait partie du commit (CLAUDE.md) : le signaler si la case reste vide.
 - Ce dossier de mémoire est versionné dans un dépôt public : ni secret ni donnée personnelle, et pas de tiret cadratin (règle de style du projet).
 
