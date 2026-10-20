@@ -4,7 +4,7 @@ from app.config import ConfigurationError, get_settings
 
 VARIABLES = (
     "GCP_PROJECT", "GOOGLE_CLOUD_PROJECT", "LLM_BACKEND", "STORE_BACKEND",
-    "PRICE_INPUT_USD_PER_MTOK", "PRICE_OUTPUT_USD_PER_MTOK",
+    "PRICE_INPUT_USD_PER_MTOK", "PRICE_OUTPUT_USD_PER_MTOK", "THINKING_LEVEL",
 )
 
 
@@ -72,3 +72,21 @@ def test_empty_price_keeps_default(env):
 def test_valid_price_is_read(env):
     env.setenv("PRICE_INPUT_USD_PER_MTOK", "0.5")
     assert get_settings().price_input_usd_per_mtok == 0.5
+
+
+def test_thinking_level_defaults_to_minimal(env):
+    env.delenv("THINKING_LEVEL", raising=False)
+    assert get_settings().thinking_level == "minimal"
+
+
+@pytest.mark.parametrize("level", ["minimal", "low", "medium", "high"])
+def test_known_thinking_level_is_read(env, level):
+    env.setenv("THINKING_LEVEL", level)
+    assert get_settings().thinking_level == level
+
+
+@pytest.mark.parametrize("value", ["MINIMAL", "none", ""])
+def test_unknown_thinking_level_is_refused(env, value):
+    env.setenv("THINKING_LEVEL", value)
+    with pytest.raises(ConfigurationError, match="THINKING_LEVEL"):
+        get_settings()

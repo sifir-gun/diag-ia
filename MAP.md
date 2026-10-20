@@ -47,7 +47,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Adaptateurs de sortie (`app/adapters/outbound/`)
 
-- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption.
+- `app/adapters/outbound/llm/gemini.py` : Gemini sur Agent Platform, schéma JSON imposé, couche anticorruption, niveau de réflexion inscrit dans le champ `model` (`gemini-3.5-flash/minimal`).
 - `app/adapters/outbound/llm/fake.py` : faux modèle pour le local et les tests.
 - `app/adapters/outbound/llm/rendering.py` : mise en forme des réponses envoyées au modèle.
 - `app/adapters/outbound/persistence/bigquery.py` : stockage BigQuery.
@@ -60,7 +60,7 @@ Deux usages : savoir quels fichiers toucher pour un changement donné, et savoir
 
 ### Composition et points d’entrée
 
-- `app/config.py` : configuration lue dans les variables d’environnement et validée : backend inconnu, projet vide avec un adaptateur réel ou prix invalide lèvent `ConfigurationError`.
+- `app/config.py` : configuration lue dans les variables d’environnement et validée : backend ou niveau de réflexion (`THINKING_LEVEL`) inconnu, projet vide avec un adaptateur réel ou prix invalide lèvent `ConfigurationError`.
 - `app/bootstrap.py` : racine de composition, seul endroit qui choisit les adaptateurs.
 - `app/main.py` : point d’entrée web pour uvicorn.
 - `app/verify.py` : point d’entrée de vérification.

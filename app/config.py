@@ -13,6 +13,7 @@ class ConfigurationError(ValueError):
 
 LLM_BACKENDS = ("vertex", "fake")
 STORE_BACKENDS = ("bigquery", "memory")
+THINKING_LEVELS = ("minimal", "low", "medium", "high")
 
 
 def _price(name: str, default: float) -> float:
@@ -29,7 +30,7 @@ def _price(name: str, default: float) -> float:
     return value
 
 
-def _backend(name: str, default: str, allowed: tuple[str, ...]) -> str:
+def _choice(name: str, default: str, allowed: tuple[str, ...]) -> str:
     value = os.getenv(name, default)
     if value not in allowed:
         raise ConfigurationError(f"{name}={value!r} : valeurs possibles {', '.join(allowed)}")
@@ -41,6 +42,7 @@ class Settings:
     project: str
     vertex_location: str
     gemini_model: str
+    thinking_level: str
     bq_dataset: str
     bq_table: str
     prompt_version: str
@@ -54,8 +56,8 @@ class Settings:
 @lru_cache
 def get_settings() -> Settings:
     """Lit et valide la configuration : toute incohérence empêche le démarrage."""
-    llm_backend = _backend("LLM_BACKEND", "vertex", LLM_BACKENDS)
-    store_backend = _backend("STORE_BACKEND", "bigquery", STORE_BACKENDS)
+    llm_backend = _choice("LLM_BACKEND", "vertex", LLM_BACKENDS)
+    store_backend = _choice("STORE_BACKEND", "bigquery", STORE_BACKENDS)
     project = (os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT") or "").strip()
     if not project and (llm_backend == "vertex" or store_backend == "bigquery"):
         raise ConfigurationError(
@@ -65,6 +67,7 @@ def get_settings() -> Settings:
         project=project,
         vertex_location=os.getenv("VERTEX_LOCATION", "global"),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
+        thinking_level=_choice("THINKING_LEVEL", "minimal", THINKING_LEVELS),
         bq_dataset=os.getenv("BQ_DATASET", "diagnostic"),
         bq_table=os.getenv("BQ_TABLE", "diagnostics"),
         prompt_version=os.getenv("PROMPT_VERSION", "v2"),

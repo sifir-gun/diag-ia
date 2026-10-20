@@ -75,13 +75,17 @@ class _AdviceSchema(BaseModel):
 
 
 class GeminiAdviceGenerator:
-    def __init__(self, project: str, location: str, model: str):
-        from google import genai
+    def __init__(self, project: str, location: str, model: str, thinking_level: str,
+                 client: object | None = None):
         from google.genai import types
 
         self._types = types
-        self._client = genai.Client(enterprise=True, project=project, location=location)
+        if client is None:
+            from google import genai
+            client = genai.Client(enterprise=True, project=project, location=location)
+        self._client = client  # injectable pour les tests, sans réseau
         self._model = model
+        self._thinking_level = thinking_level
 
     def generate(self, prompt: Prompt, request: AdviceRequest) -> GeneratedAdvice:
         response = self._client.models.generate_content(
@@ -91,6 +95,7 @@ class GeminiAdviceGenerator:
                 system_instruction=prompt.text,
                 response_mime_type="application/json",
                 response_schema=_AdviceSchema,
+                thinking_config=self._types.ThinkingConfig(thinking_level=self._thinking_level),
             ),
         )
         parsed = getattr(response, "parsed", None)
@@ -104,7 +109,8 @@ class GeminiAdviceGenerator:
         input_tokens = (usage.prompt_token_count or 0) if usage else 0
         output_tokens = ((usage.candidates_token_count or 0)
                          + (getattr(usage, "thoughts_token_count", None) or 0)) if usage else 0
-        return GeneratedAdvice(advice=_to_domain(parsed), model=self._model,
+        # Le niveau de réflexion fait partie du modèle : il est stocké et couvert par l'empreinte.
+        return GeneratedAdvice(advice=_to_domain(parsed), model=f"{self._model}/{self._thinking_level}",
                                input_tokens=input_tokens, output_tokens=output_tokens)
 
 

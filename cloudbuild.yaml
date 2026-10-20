@@ -8,6 +8,7 @@ substitutions:
   _RUNTIME_SA: diag-app
   _VERTEX_LOCATION: global
   _MODEL: gemini-3.5-flash
+  _THINKING_LEVEL: minimal
   _CONTACT_EMAIL: ""
 
 options:
@@ -48,4 +49,4 @@ steps:
       - --allow-unauthenticated
       - --max-instances=3
       - --memory=512Mi
-      - --set-env-vars=GCP_PROJECT=$PROJECT_ID,VERTEX_LOCATION=${_VERTEX_LOCATION},GEMINI_MODEL=${_MODEL},CONTACT_EMAIL=${_CONTACT_EMAIL}
+      - --set-env-vars=GCP_PROJECT=$PROJECT_ID,VERTEX_LOCATION=${_VERTEX_LOCATION},GEMINI_MODEL=${_MODEL},THINKING_LEVEL=${_THINKING_LEVEL},CONTACT_EMAIL=${_CONTACT_EMAIL}

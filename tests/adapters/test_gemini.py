@@ -1,9 +1,13 @@
 import json
+from types import SimpleNamespace
 
 import pytest
 
-from app.adapters.outbound.llm.gemini import _AdviceSchema, _to_domain
+from app.adapters.outbound.llm.gemini import GeminiAdviceGenerator, _AdviceSchema, _to_domain
+from app.application.ports import AdviceRequest, Prompt
 from app.domain.advice import InvalidAdvice, normalize_advice
+from app.domain.scoring import compute_score
+from tests.fakes import VALID_ANSWERS
 
 
 def model_json(**overrides):
@@ -71,3 +75,41 @@ def test_unknown_or_invalid_entities_are_left_for_the_domain_to_reject(entity):
 def test_effort_is_decoded_before_validation():
     advice = _to_domain(_AdviceSchema.model_validate_json(model_json(effort="&eacute;lev&eacute;")))
     assert advice.recommendations[0].effort == "élevé"
+
+
+class StubModels:
+    """Remplace client.models : enregistre l'appel et renvoie une réponse prête."""
+
+    def __init__(self, text: str):
+        self.calls = []
+        self._text = text
+
+    def generate_content(self, **kwargs):
+        self.calls.append(kwargs)
+        usage = SimpleNamespace(prompt_token_count=1000, candidates_token_count=400,
+                                thoughts_token_count=0)
+        return SimpleNamespace(parsed=None, text=self._text, usage_metadata=usage)
+
+
+def stub_generator(level="minimal"):
+    models = StubModels(model_json())
+    generator = GeminiAdviceGenerator("projet", "global", "gemini-3.5-flash", level,
+                                      client=SimpleNamespace(models=models))
+    return generator, models
+
+
+def call(generator):
+    return generator.generate(Prompt(version="v2", text="consigne", sha256="0" * 64),
+                              AdviceRequest(answers=VALID_ANSWERS, score=compute_score(VALID_ANSWERS)))
+
+
+@pytest.mark.parametrize("level", ["minimal", "high"])
+def test_thinking_level_is_sent_to_the_model(level):
+    generator, models = stub_generator(level)
+    call(generator)
+    assert models.calls[0]["config"].thinking_config.thinking_level.value == level.upper()
+
+
+def test_model_label_carries_the_thinking_level():
+    generator, _ = stub_generator("minimal")
+    assert call(generator).model == "gemini-3.5-flash/minimal"

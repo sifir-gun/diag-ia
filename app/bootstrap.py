@@ -39,7 +39,8 @@ def build_container(settings: Settings) -> Container:
     if settings.llm_backend == "fake":
         advisor = FakeAdviceGenerator()
     else:
-        advisor = GeminiAdviceGenerator(settings.project, settings.vertex_location, settings.gemini_model)
+        advisor = GeminiAdviceGenerator(settings.project, settings.vertex_location, settings.gemini_model,
+                                         settings.thinking_level)
 
     repository: DiagnosticRepository
     if settings.store_backend == "memory":
