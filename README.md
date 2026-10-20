@@ -170,14 +170,19 @@ Crée un compte de service dédié au build, avec les seuls droits nécessaires 
 ```bash
 gcloud iam service-accounts create diag-build --display-name="Build diagnostic IA"
 B=diag-build@wengraf-diag-ia.iam.gserviceaccount.com
-for ROLE in roles/run.admin roles/artifactregistry.writer roles/logging.logWriter; do
+for ROLE in roles/run.admin roles/logging.logWriter; do
   gcloud projects add-iam-policy-binding wengraf-diag-ia \
     --member="serviceAccount:$B" --role="$ROLE"
 done
+gcloud artifacts repositories add-iam-policy-binding diag-repo \
+  --location=europe-west1 \
+  --member="serviceAccount:$B" --role="roles/artifactregistry.writer"
 gcloud iam service-accounts add-iam-policy-binding \
   diag-app@wengraf-diag-ia.iam.gserviceaccount.com \
   --member="serviceAccount:$B" --role="roles/iam.serviceAccountUser"
 ```
+
+`run.admin` plutôt que `run.developer`, parce que `--allow-unauthenticated` modifie la politique IAM du service. Le droit d’écriture d’images est posé sur le dépôt `diag-repo` seulement, pas sur le projet. `iam.serviceAccountUser` est posé sur `diag-app` seulement : le build peut déployer le service sous cette identité, et sous aucune autre. Juste après la création du compte, un binding peut échouer avec « does not exist » le temps que le compte se propage : il suffit de relancer la commande.
 
 Dans la console, Cloud Build > Déclencheurs : connecte le repo GitHub, déclenche sur push vers `main`, fichier `cloudbuild.yaml`, compte de service `diag-build`. Renseigne `_CONTACT_EMAIL` dans les variables de substitution pour afficher le bouton de contact.
 

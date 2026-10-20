@@ -27,7 +27,7 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Consigne v2 : texte brut sans entités HTML et apostrophe ’, parce que Gemini a renvoyé `&eacute;` en v1, que la page aurait affiché tel quel. L’adaptateur Gemini décode les entités, `normalize_advice` rejette celles qui subsistent et convertit l’apostrophe droite (2026-10-20, 3 diagnostics réels débutant 5, en démarrage 48, avancé 90, textes propres, tous intègres)
 
 ## Phase 4. Déploiement
-- [ ] Créer le compte de service `diag-build` et ses rôles
+- [x] Créer le compte de service `diag-build` et ses rôles (2026-10-20, run.admin et logging.logWriter sur le projet, artifactregistry.writer sur le dépôt `diag-repo` seulement, iam.serviceAccountUser sur `diag-app` seulement)
 - [ ] (Guney, console) Connecter GitHub et créer le déclencheur Cloud Build sur `main`
 - [ ] Premier déploiement réussi, URL Cloud Run notée ici :
 
