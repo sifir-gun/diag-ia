@@ -13,13 +13,18 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 from app.adapters.outbound.llm.rendering import build_user_content
 from app.application.ports import AdviceGenerationError, AdviceRequest, GeneratedAdvice, Prompt
+from app.domain.advice import HTML_ENTITY
 from app.domain.model import Advice, Recommendation
 
 
 def _decode_entities(value: object) -> object:
     # Le modèle renvoie parfois des entités HTML (&eacute;) : on les décode
     # avant validation, pour que « élevé » passe aussi le contrôle du Literal.
-    return html.unescape(value) if isinstance(value, str) else value
+    # Seules les entités terminées par « ; » sont décodées, comme les reconnaît
+    # le filet du domaine : « &parametres » reste tel quel.
+    if not isinstance(value, str):
+        return value
+    return HTML_ENTITY.sub(lambda m: html.unescape(m.group(0)), value)
 
 
 class _RecommendationSchema(BaseModel):
