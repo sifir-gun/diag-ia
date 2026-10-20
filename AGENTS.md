@@ -7,7 +7,7 @@ Ce fichier est lu par tous les assistants de code (Claude Code via CLAUDE.md, Cu
 ## Commandes
 
 - Installer : `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt -r requirements-dev.txt`
-- Tests : `pytest -q`. Ils doivent passer avant chaque commit.
+- Tests : `.venv/bin/python -m pytest -q`. Ils doivent passer avant chaque commit. Ne pas lancer le `pytest` du PATH : c’est un shim pyenv qui pointe vers un Python 3.11 sans les dépendances du projet (google-genai absent), et il donne de faux échecs.
 - Serveur local sans GCP : `LLM_BACKEND=fake STORE_BACKEND=memory uvicorn app.main:app --reload`
 - Vérifier un diagnostic stocké : `python -m app.verify <référence>`
 
