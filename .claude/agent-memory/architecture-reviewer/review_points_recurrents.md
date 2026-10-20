@@ -28,6 +28,7 @@ metadata:
 - Les `APIError` non passagères (400, 500) sortent de l’adaptateur (toléré, attrapé en `advice_failed` avec le seul nom du type) ; à signaler sans bloquer.
 - `latency_ms` (BigQuery et `diagnostic_completed`) inclut les nouveaux essais et attentes ; `attempts` n’existe que dans l’événement.
 - Cocher la tâche de `PLAN.md` fait partie du commit (CLAUDE.md) : le signaler si la case reste vide.
+- Lancer les tests avec `.venv/bin/python -m pytest -q` : le `pytest` de pyenv (3.11, sans google-genai, Starlette ancienne) donne 12 faux échecs.
 - Ce dossier de mémoire est versionné dans un dépôt public : ni secret ni donnée personnelle, et pas de tiret cadratin (règle de style du projet).
 
 **Why:** constats faits pendant les relectures de la consigne v2 et du décodage des entités HTML renvoyées par Gemini.
