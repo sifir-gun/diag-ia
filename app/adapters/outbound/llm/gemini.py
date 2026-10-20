@@ -6,7 +6,9 @@ Authentification par le compte de service de Cloud Run : aucune clé API.
 """
 from __future__ import annotations
 
-import html
+import re
+import unicodedata
+from html.entities import html5
 from typing import Literal
 
 from pydantic import BaseModel, ValidationError, field_validator
@@ -17,14 +19,37 @@ from app.domain.advice import HTML_ENTITY
 from app.domain.model import Advice, Recommendation
 
 
+def _printable(char: str) -> bool:
+    # Les espaces (catégorie Zs) comptent comme imprimables : l'espace insécable
+    # et l'espace fine insécable font partie de la typographie française.
+    return char.isprintable() or unicodedata.category(char) == "Zs"
+
+
+def _decode_entity(match: re.Match[str]) -> str:
+    entity = match.group(0)
+    if entity[1] != "#":
+        # Nom exact uniquement : html.unescape décoderait « &notit; » en « ¬it; ».
+        return html5.get(entity[1:], entity)
+    hexa = entity[2] in "xX"
+    digits = (entity[3:-1] if hexa else entity[2:-1]).lstrip("0") or "0"
+    # U+10FFFF tient en 6 chiffres hexadécimaux ou 7 décimaux. Au-delà, on ne
+    # convertit pas : int() refuse plus de 4300 chiffres en base 10.
+    if len(digits) > (6 if hexa else 7):
+        return entity
+    code = int(digits, 16 if hexa else 10)
+    if code > 0x10FFFF or 0xD800 <= code <= 0xDFFF or not _printable(chr(code)):
+        return entity
+    return chr(code)
+
+
 def _decode_entities(value: object) -> object:
     # Le modèle renvoie parfois des entités HTML (&eacute;) : on les décode
     # avant validation, pour que « élevé » passe aussi le contrôle du Literal.
-    # Seules les entités terminées par « ; » sont décodées, comme les reconnaît
-    # le filet du domaine : « &parametres » reste tel quel.
+    # Seules les vraies entités sont décodées ; les autres restent intactes
+    # et le filet du domaine (HTML_ENTITY) rejette alors le conseil.
     if not isinstance(value, str):
         return value
-    return HTML_ENTITY.sub(lambda m: html.unescape(m.group(0)), value)
+    return HTML_ENTITY.sub(_decode_entity, value)
 
 
 class _RecommendationSchema(BaseModel):
