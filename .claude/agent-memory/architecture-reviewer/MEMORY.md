@@ -1,0 +1,1 @@
+- [Points de relecture récurrents](review_points_recurrents.md) : prompts figés par test d’empreinte, pièges html.unescape et Pydantic, mémoire publique
