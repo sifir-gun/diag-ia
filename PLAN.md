@@ -7,10 +7,10 @@ Coche une tâche quand elle est terminée et vérifiée, avec la date.
 - [x] Écosystème Claude Code : AGENTS.md, CLAUDE.md, MAP.md vérifiée par un test, SPEC.md, PLAN.md, règles, sous-agent, skills, hook de tests
 
 ## Phase 1. Vérification locale
-- [ ] Installer le venv et faire passer `pytest -q`
+- [x] Installer le venv et faire passer `pytest -q` (2026-10-20, Python 3.12, 58 tests)
 - [ ] Lancer le serveur avec les adaptateurs locaux et faire un diagnostic dans le navigateur
 - [ ] Ajuster les questions ou le design si besoin
-- [ ] Créer le repo GitHub public `diag-ia` et pousser `main`
+- [x] Créer le repo GitHub public `diag-ia` et pousser `main` (2026-10-20, https://github.com/sifir-gun/diag-ia)
 
 ## Phase 2. Fondations GCP
 - [ ] (Guney, console) Créer le projet, lier la facturation, poser l’alerte budget à 5 €
