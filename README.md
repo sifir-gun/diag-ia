@@ -110,7 +110,7 @@ app/
 
 **Les réponses sont des données, pas des consignes.** Elles sont encadrées par des balises et le prompt demande d’ignorer toute instruction qu’elles contiendraient.
 
-**Aucune clé API, aucune donnée personnelle dans les logs.** L’application s’authentifie avec son compte de service. L’e-mail facultatif est stocké dans BigQuery mais n’apparaît jamais dans les événements, et un test le vérifie.
+**Aucune clé API, aucune donnée personnelle dans les événements.** L’application s’authentifie avec son compte de service. L’e-mail facultatif est stocké dans BigQuery mais n’apparaît jamais dans les événements, et un test le vérifie. Les logs de requêtes que Cloud Run écrit lui-même contiennent l’adresse IP du visiteur : ils restent 30 jours dans Cloud Logging et ne sont pas exportés vers BigQuery, puisque le sink d’audit ne prend que les événements de l’application.
 
 ## Lancer en local
 
@@ -202,17 +202,19 @@ Une configuration invalide (backend inconnu, `GCP_PROJECT` vide avec les adaptat
 
 ## Audit et observabilité
 
-Sink des logs vers BigQuery :
+Sink des événements vers BigQuery :
 
 ```bash
 bq --location=EU mk --dataset wengraf-diag-ia:audit_logs
 gcloud logging sinks create diag-audit \
   bigquery.googleapis.com/projects/wengraf-diag-ia/datasets/audit_logs \
   --use-partitioned-tables \
-  --log-filter='resource.type="cloud_run_revision" AND resource.labels.service_name="diag-ia"'
+  --log-filter='resource.type="cloud_run_revision" AND resource.labels.service_name="diag-ia" AND logName="projects/wengraf-diag-ia/logs/run.googleapis.com%2Fstdout"'
 ```
 
-Donne ensuite à l’identité du sink (affichée à la création) le rôle BigQuery Data Editor sur `audit_logs`. Les requêtes prêtes à l’emploi sont dans `sql/audit.sql` : retrouver un diagnostic et ses événements, coût et latence par jour, incidents.
+Le filtre ne garde que la sortie standard, où l’application écrit ses événements JSON (uvicorn tourne avec `--no-access-log`). Les logs de requêtes de Cloud Run, qui contiennent l’adresse IP du visiteur, restent donc hors de BigQuery. Le sink n’exporte que les entrées écrites après sa création, avec quelques minutes de délai.
+
+Dans la console, partage ensuite le dataset `audit_logs` avec l’identité du sink (`gcloud logging sinks describe diag-audit --format="value(writerIdentity)"`), avec le rôle BigQuery Data Editor. Ce droit porte sur le dataset entier parce que le sink crée lui-même ses tables. `bq add-iam-policy-binding -d` répond « This feature requires allowlisting » sur ce projet, d’où la console. Les requêtes prêtes à l’emploi sont dans `sql/audit.sql` : retrouver un diagnostic et ses événements, coût et latence par jour, incidents.
 
 Vérifier l’intégrité d’un diagnostic stocké :
 
